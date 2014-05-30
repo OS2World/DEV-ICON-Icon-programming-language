@@ -1,0 +1,60 @@
+Here are the files that I changed or created to generate the OS/2
+non-graphical version of Icon 9.3.1.
+
+I based the build on the unix source code.
+
+I implemented:
+
+MTIcon (in MTICONT.EXE, MTICONX.EXE MTICON.DLL)
+dynamic loading
+external functions
+event monitoring
+DEBUGGING	    (iconcore etc.)
+Direct executables (creates a .EXE file by default
+		    -i option on icont generates .icx file).
+
+
+The code was compiled using IBM's VisualAge V3 with
+the latest maintenance.
+
+I ran the entire test suite and got expected
+results.
+
+------[ files ]-------
+
+README.1ST	    Overall notes this file
+os2icon.doc	    Comments and general doc
+os2src.zip	    Changed base files (unzip in src directory)
+		    (changes files only... based on UNIX's 9.3.1)
+
+os2cfg.zip	    OS/2 config (unzip in config directory)
+os2bin.zip	    OS/2 binaries for CLI version of Icon 9.3.1
+		    (unzip directly where path and libpath point to)
+		    (os2bin.zip contains some doc files as well)
+
+--[files in os2src.zip]----
+preproc\files.c     added conditionals for OS2
+preproc\pinit.c     added conditionals for OS2
+runtime\fload.r     dynamic functions for OS/2
+runtime\imain.r     fixed bug in direct executables for OS/2
+
+
+--[files "copied" from config/os2/cli]--
+
+
+h\define.h	    config for OS/2
+h\local.h
+h\path.h	    changed to empty string
+
+
+preproc\makefile    Makefiles
+runtime\makefile      ...
+icont\makefile	       ...
+rtt\makefile		...
+common\makefile 	  ...
+
+rtt\rtt.def	    Defines rtt.exe's stack size
+
+runtime\iconx.def   Creates iconx.lib (list of exported functions)
+runtime\stub.c	    Direct executable stub
+runtime\stub.def    Defines iconx.exe's stack size and "stubs" stack

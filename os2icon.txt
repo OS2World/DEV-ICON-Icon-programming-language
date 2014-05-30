@@ -1,0 +1,159 @@
+			      Installation
+
+   iconx.dll needs to be placed in a subdirectory that is pointed to by
+the LIBPATH statement in config.sys.
+
+   The program; rc.exe (supplied with the base of OS/2) needs to be
+present.  If it is not, use the "selective install" feature of OS/2 and
+install the resource compiler.	RC.EXE is required for icont to create
+an executable (.EXE) file.
+
+   iconx.dll is not needed for icont.
+
+   icont has a new option, -i.	It indicates to skip the process of
+creating a .EXE file, and creates a .ICX file instead.
+
+			       Execution.
+
+   iconx.dll must be present on the system and LIBPATH in config.sys
+must point to the directory that contains it.
+
+   Changing the LIBPATH requires a reboot of OS/2.  It is not an
+environment setting.
+
+
+
+   Iconx.exe will search the PATH environment to find the .ICX.
+
+    All that is needed to execute an Icon program is
+	a) if .ICX iconx.exe and iconx.dll
+	b) if .EXE just the .EXE and iconx.dll
+
+-------------------------------------------------------------------
+	    Icon-C Calling interfaces
+
+NOTE This part of the doc is sketchy at this point -- Cheyenne Wills
+
+   You will need:  rt.h and iconx.lib
+
+   rt.h defines the structures, datatypes, defines, and function
+prototypes used in Icon (at least those really related to external
+calls).  The function prototypes are targeted to IBM VisualAge C's
+calling structure
+
+
+1. Introduction.
+
+   The OS/2 Icon-C calling interfaces have been isolated to a subset of
+the Icon internal functions (those defined in section 2 "Data
+Interface").  Knowledge and use of RTL is not needed to use the OS/2
+interface, nor is there a requirement to rebuild Icon to include your
+programs.
+
+2. External Functions.
+
+   OS/2 Icon's "callout" function has the following two functions
+predefined:
+
+	callout("loadfunc","modulename","functionname")
+	callout("unloadfunc","functionname")
+
+
+   "loadfunc" This subfunction will cause OS/2 Icon to perform a
+module load (DosLoadModule) using the name specified by "modulename".
+"modulename" must be the name of a DLL that is contained in a
+sub-directory that is specified in the LIBPATH statement in config.sys.
+A runtime error 216 is issued if OS/2 cannot find or load the DLL.  Once
+the DLL is loaded, the procedure specified by "functionname" is located
+(via the DosQueryProcAddr).  Again a runtime error 216 is issued if the
+process address could not be located.
+
+   "loadfunc" checks to see if the DLL has already been loaded and will
+use the existing DLL to locate the function.  "loadfunc" also checks to
+see if the function has already been loaded, and will use the existing
+entry (in otherwords it will just return).
+
+   Once a module/function have been loaded, the functionname is
+available to be called by using the "callout" interface.  The function
+will be called with the same parameters as extcall.  The format of the
+callout is:
+		callout("functionname",x1,x2,x3,...xn)
+
+
+The function will be called using IBM VisualAge C's "system call"
+mechinism.  The following TYPEDEF will correctly define a function for
+use (see examples below).
+
+  typedef dptr (_System ICNFUNC)(dptr, int, int *);
+
+	ICNFUNC functionname;
+
+	dptr functionname(dptr dargv, int argc, int *ip)
+	{
+	.......
+
+	}
+	Dargv is an array of descriptors in the following format.
+
+		dargv[0] -> string."functionname"
+		dargv[1] -> x1
+		dargv[2] -> x2
+		dargv[n] -> xn
+
+
+   "unloadfunc"  This subfunction will remove the function specified by
+"functionname" from the list that is maintained by callout.  If the
+function is the last function in a DLL, the DLL will also be unloaded.
+Unloading a function that has not been loaded does *not* cause an error.
+
+3. Dynamic loading
+
+ --- I need to work on this Cheyenne
+
+Basically ... same as UNIX's doc, uses VisualAges's _System call
+protocol, the following typedef should work:
+
+   typedef int (_System DICNFUNC)(int argc, dptr dargv)
+
+   DICNFUNC functionname;
+
+   int functionname(int argc, dptr dargv)
+   {
+	...
+	...
+   }
+
+Link your program into a .DLL
+
+Use Icon's loadfunc function
+
+	loadfunc("dll name","functionname")
+
+And proceed as documented in Icon's doc on Dynamic functions.
+
+
+4. iconx.dll and iconx.lib exported functions/variables
+
+Only a subset of Icon's internal facilities are available as exported
+functions.  If this list is not sufficient, then the file iconx.def
+needs to be changed and the iconx.dll and iconx.lib need to be rebuilt.
+
+
+   The following functions are available for use from a function loaded
+by callout's "loadfunc" or by the loadfunc function.
+
+	cnv_int
+	cnv_real
+	cnv_str
+	qtos
+	alcstr
+	c_exit		- Used to clean up on exit.  Use this
+			  instead of "exit"
+
+The following variables are availble
+
+	nulldesc
+	zerodesc
+	onedesc
+	emptystr
+

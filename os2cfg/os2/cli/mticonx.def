@@ -1,0 +1,15 @@
+LIBRARY MTICONX INITINSTANCE TERMINSTANCE
+DESCRIPTION 'MTICON Interpreter runtime'
+STACKSIZE 262144
+EXPORTS
+	os2main
+	cnv_int
+	cnv_str
+	cnv_real
+	qtos
+	alcstr
+	nulldesc
+	zerodesc
+	onedesc
+	emptystr
+	c_exit
